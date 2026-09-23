@@ -9,3 +9,4 @@ db.sqlite3
 
 # Скрываем тяжелые библиотеки фронтенда
 frontend/node_modules/
+.env
