@@ -1,6 +1,9 @@
 from rest_framework import viewsets, permissions
 from .models import Fabric, Service, Measurement, Order
 from .serializers import FabricSerializer, ServiceSerializer, MeasurementSerializer, OrderSerializer
+from django.contrib.auth.models import User
+from rest_framework import generics
+from .serializers import RegisterSerializer
 
 # Кастомное правило: Читать могут все, а изменять - только админы (Мастер)
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -50,3 +53,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer.save(client=self.request.user, status='NEW')
         else:
             serializer.save(client=self.request.user)
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = [permissions.AllowAny]
+    serializer_class = RegisterSerializer
