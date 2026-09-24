@@ -1,39 +1,52 @@
-from rest_framework import viewsets, generics
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
-from django.contrib.auth.models import User
+from rest_framework import viewsets, permissions
+from .models import Fabric, Service, Measurement, Order
+from .serializers import FabricSerializer, ServiceSerializer, MeasurementSerializer, OrderSerializer
 
-from .models import Fabric, Measurement, Order, Service
-from .serializers import FabricSerializer, MeasurementSerializer, OrderSerializer, RegisterSerializer, ServiceSerializer
+# Кастомное правило: Читать могут все, а изменять - только админы (Мастер)
+class IsAdminOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return bool(request.user and request.user.is_staff)
 
-# === ЛОГИКА ДЛЯ ТКАНЕЙ ===
 class FabricViewSet(viewsets.ModelViewSet):
     queryset = Fabric.objects.all()
     serializer_class = FabricSerializer
-    # Смотреть могут все, а изменять - только авторизованные (позже сделаем только админов)
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly] # Применили новое правило
 
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly] # Применили новое правило
 
-# === ЛОГИКА ДЛЯ МЕРОК ===
 class MeasurementViewSet(viewsets.ModelViewSet):
-    queryset = Measurement.objects.all()
     serializer_class = MeasurementSerializer
-    # Защита: работать с мерками могут только авторизованные
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
-# === ЛОГИКА ДЛЯ ЗАКАЗОВ ===
+    # Фильтруем: админ видит все мерки, клиент — только свои
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Measurement.objects.all()
+        return Measurement.objects.filter(client=self.request.user)
+
+    # Автоматически привязываем мерки к текущему пользователю
+    def perform_create(self, serializer):
+        serializer.save(client=self.request.user)
+
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    # Защита: работать с заказами могут только авторизованные
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
-# === ЛОГИКА ДЛЯ РЕГИСТРАЦИИ ===
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    # Регистрация доступна абсолютно всем
-    permission_classes = [AllowAny]
-    serializer_class = RegisterSerializer
+    # Фильтруем: админ видит все заказы, клиент — только свои
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(client=self.request.user)
+
+    # Автоматически привязываем заказ к текущему пользователю
+    def perform_create(self, serializer):
+        # Если клиент сам делает заказ, принудительно ставим статус NEW
+        if not self.request.user.is_staff:
+            serializer.save(client=self.request.user, status='NEW')
+        else:
+            serializer.save(client=self.request.user)
