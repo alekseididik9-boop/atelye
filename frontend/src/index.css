@@ -1,0 +1,127 @@
+/* Подключаем шрифты: Playfair для элегантных заголовков и Montserrat для читаемого текста */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Playfair+Display:wght@400;600;700&display=swap');
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #27211e; /* Глубокий темно-коричневый фон, как на видео */
+  color: #f4ede4;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Заголовки в стиле премиум */
+h1, h2, h3, h4, h5, h6, .serif-font {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Фирменный золотой цвет */
+.text-gold {
+  color: #c8a97e !important; 
+}
+
+/* Темная шапка */
+.bg-dark-premium {
+  background-color: #1a1513 !important;
+  border-bottom: 1px solid rgba(200, 169, 126, 0.2);
+}
+
+/* Ссылки в меню */
+.nav-link {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: #dcdcdc !important;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #c8a97e !important;
+}
+
+/* Строгая золотая кнопка */
+.btn-gold {
+  background-color: #c8a97e;
+  color: #1a1513;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: 1px solid #c8a97e;
+  border-radius: 0; /* Убираем скругления для строгости */
+  padding: 10px 25px;
+  transition: all 0.3s ease;
+}
+
+.btn-gold:hover {
+  background-color: transparent;
+  color: #c8a97e;
+}
+
+/* Карточки услуг и тканей */
+.premium-card {
+  background-color: #312a26;
+  border: 1px solid #443a35;
+  border-radius: 0;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.premium-card:hover {
+  transform: translateY(-5px);
+  border-color: #c8a97e;
+}
+
+/* --- ПРЕМИАЛЬНЫЕ АНИМАЦИИ --- */
+
+/* Плавное появление страниц и блоков */
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Применяем анимацию ко всем основным контейнерам и карточкам */
+.card, .container > div {
+  animation: fadeInSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Эффект легкого увеличения и золотого свечения для карточек */
+.premium-card {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.premium-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: #c8a97e !important;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(200, 169, 126, 0.15);
+}
+
+/* Анимация для кнопок (плавное затухание фона) */
+.btn-gold {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-gold:hover {
+  background-color: transparent;
+  color: #c8a97e;
+  box-shadow: 0 0 20px rgba(200, 169, 126, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Плавное изменение статусов в панели мастера */
+.form-select {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-select:focus {
+  border-color: #c8a97e !important;
+  box-shadow: 0 0 10px rgba(200, 169, 126, 0.3) !important;
+}

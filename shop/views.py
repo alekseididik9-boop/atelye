@@ -43,8 +43,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     # Фильтруем: админ видит все заказы, клиент — только свои
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Order.objects.all()
-        return Order.objects.filter(client=self.request.user)
+            return Order.objects.all().order_by('-id')
+        return Order.objects.filter(client=self.request.user).order_by('-id')
 
     # Автоматически привязываем заказ к текущему пользователю
     def perform_create(self, serializer):

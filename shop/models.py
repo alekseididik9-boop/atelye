@@ -11,7 +11,6 @@ class Fabric(models.Model):
         return self.name
 
 
-
 class Service(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название услуги")
     description = models.TextField(verbose_name="Описание")
@@ -35,12 +34,12 @@ class Order(models.Model):
     STATUS_CHOICES = [
         ('NEW', 'Новый'),
         ('IN_PROGRESS', 'В работе'),
-        ('DONE', 'Готово'),
+        ('READY', 'Готов'),
+        ('COMPLETED', 'Выдан клиенту'),
     ]
 
     client = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Клиент")
     fabric = models.ForeignKey(Fabric, on_delete=models.PROTECT, verbose_name="Выбранная ткань")
-    # НОВАЯ СВЯЗЬ: УСЛУГА
     service = models.ForeignKey(Service, on_delete=models.PROTECT, verbose_name="Выбранная услуга", null=True)
     measurement = models.ForeignKey(Measurement, on_delete=models.PROTECT, verbose_name="Мерки для заказа")
 
