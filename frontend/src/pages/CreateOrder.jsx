@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/api';
+import Swal from 'sweetalert2';
 
 function CreateOrder() {
     const [services, setServices] = useState([]);
@@ -52,7 +53,15 @@ function CreateOrder() {
                 measurement: newMeasurementId
             });
             
-            alert('Заказ успешно оформлен!');
+        await Swal.fire({
+    title: 'Заказ принят!',
+    text: 'Ваш заказ успешно оформлен. Мастер скоро свяжется с вами.',
+    icon: 'success',
+    background: '#201b19',
+    color: '#fff',
+    confirmButtonColor: '#d4af37',
+    confirmButtonText: 'Отлично'
+});    
             navigate('/profile');
         } catch (error) {
             if (error.response && error.response.data) {
@@ -78,7 +87,7 @@ function CreateOrder() {
                 <label>Выберите ткань:</label>
                 <select value={selectedFabric} onChange={(e) => setSelectedFabric(e.target.value)} required style={{ padding: '10px', borderRadius: '5px' }}>
                     <option value="" disabled>-- Выберите из списка --</option>
-                    {fabrics.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                    {fabrics.map(f => <option key={f.id} value={f.id}>{f.name} ({f.price} руб.)</option>)}
                 </select>
 
                 <label style={{ marginTop: '10px', fontWeight: 'bold' }}>Ваши параметры (можно изменить прямо сейчас):</label>
