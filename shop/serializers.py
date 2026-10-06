@@ -20,24 +20,46 @@ class MeasurementSerializer(serializers.ModelSerializer):
         # Клиент не должен передавать свой ID, мы возьмем его из токена
         read_only_fields = ('client',)
 
+
 class OrderSerializer(serializers.ModelSerializer):
-    # Данные клиента
     client_phone = serializers.CharField(source='client.username', read_only=True)
     client_email = serializers.CharField(source='client.email', read_only=True)
     client_name = serializers.CharField(source='client.first_name', read_only=True)
 
-    # Текстовые названия услуги, ткани и мерок вместо их числовых ID
     service_name = serializers.StringRelatedField(source='service', read_only=True)
     fabric_name = serializers.StringRelatedField(source='fabric', read_only=True)
-    measurement_details = serializers.StringRelatedField(source='measurement', read_only=True)
-    # Примечание: если в модели Order поле мерок называется во множественном числе (measurements),
-    # замени source='measurement' на source='measurements'
+
+    measurement_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = '__all__'
-        # ID клиента и дату берем автоматически.
         read_only_fields = ('client', 'created_at')
+
+    # 2. ДОБАВЛЯЕМ функцию, которая соберет все значения мерок в одну строку
+    def get_measurement_details(self, obj):
+        try:
+            # Пытаемся получить прикрепленные мерки
+            measurement = obj.measurement
+            if not measurement:
+                return "Мерки не прикреплены"
+        except Exception:
+            return "Мерки не прикреплены"
+
+        details = []
+        # Автоматически перебираем все поля в таблице мерок
+        for field in measurement._meta.fields:
+            # Игнорируем служебные поля (нам не нужно выводить ID или ссылку на клиента)
+            if field.name not in ['id', 'client', 'user', 'created_at', 'updated_at', 'order']:
+                val = getattr(measurement, field.name)
+                # Если мерка заполнена (не пустая и не None)
+                if val is not None and val != '':
+                    # Берем русское название поля (verbose_name) из models.py
+                    name = str(field.verbose_name).capitalize()
+                    details.append(f"{name}: {val}")
+
+        # Склеиваем все мерки через разделитель
+        return " | ".join(details) if details else "Все мерки пустые"
 
 class RegisterSerializer(serializers.ModelSerializer):
     # Указываем write_only=True для пароля, чтобы он не возвращался в ответе
